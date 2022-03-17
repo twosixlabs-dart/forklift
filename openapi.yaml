@@ -1,0 +1,126 @@
+openapi: 3.0.2
+info:
+  title: DART Raw Doc Procurement
+  description: Service for uploading Raw Documents
+  version: 1.0.0
+
+paths:
+  /dart/api/v1/forklift/health:
+    get:
+      summary: Returns the health of the service.
+      security:
+        - basicAuth: []
+      responses:
+        200:
+          description: The health of the service.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+        401:
+          description: 401 Unauthorized
+
+  /dart/api/v1/forklift/upload:
+    post:
+      summary: Persists the file and metadata to the backend raw doc store and returns document Id
+      security:
+        - basicAuth: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  $ref: '#/components/schemas/FileMetadata'
+                file:
+                  type: string
+                  format: binary
+
+      responses:
+        201:
+          description: 201 if the file is persisted successfully to File Storage
+        400:
+          description: 400 bad request
+        401:
+          description: 401 Unauthorized
+        500:
+          description: 500 server error if the service cannot persist the raw doc to the backend
+
+  /dart/api/v1/forklift/upload/zip:
+    post:
+      summary: Post a zip file contains documents and persists the files and metadata to the backend raw doc store and returns list of document Ids and filenames
+      security:
+        - basicAuth: [ ]
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  $ref: '#/components/schemas/FileMetadata'
+                file:
+                  type: string
+                  format: binary
+
+      responses:
+        201:
+          description: 201 if the files are successfully extracted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArchiveSuccessResponse'
+        400:
+          description: 400 bad request
+        401:
+          description: 401 Unauthorized
+        500:
+          description: 500 server error if the service cannot persist the raw doc to the backend
+components:
+  securitySchemes:
+    basicAuth:     # <-- arbitrary name for the security scheme
+      type: http
+      scheme: basic
+  schemas:
+    FileMetadata:
+      type: object
+      properties:
+        genre:
+          type: string
+        ingestion_tystem:
+          type: string
+        labels:
+          type: array
+          items:
+            type: string
+    ArchiveSuccessResponse:
+      type: object
+      properties:
+        documents:
+          description: List of documents that were succesfully extracted
+          type: array
+          items:
+            type: object
+            properties:
+              documentId:
+                type: string
+              filename:
+                type: string
+        numDocumentsFailed:
+          description: Number of documents failed to extract
+          type: integer
+    Health:
+      type: "object"
+      required:
+        - "status"
+        - "version"
+      properties:
+        status:
+          type: "string"
+          example: "running"
+          description: "Status of the server: `healthy` if OK, error message if not"
+        version:
+          type: "string"
+          example: "1.0.0"
+          description: "Version of the application"

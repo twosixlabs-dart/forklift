@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CDR Document Metadata",
+  "type": "object",
+  "tenants": {
+    "description": "Target tenant for document upload",
+    "type": "string"
+  },
+  "labels": {
+    "descriptions": "List of document labels describing the document",
+    "type": "array",
+    "items": "string"
+  },
+  "genre": {
+    "description": "Genre classification of the document",
+    "type": "string"
+  },
+  "ingestion_system": {
+    "description": "Application that was used to upload the document",
+    "type": "string"
+  }
+}
