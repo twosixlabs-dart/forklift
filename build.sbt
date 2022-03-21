@@ -43,12 +43,12 @@ lazy val commonSettings : Seq[ Def.Setting[ _ ] ] = {
                                      "com.fasterxml.jackson.core" % "jackson-annotation" % jacksonOverrideVersion,
                                      "com.fasterxml.jackson.core" % "jackson-databind" % jacksonOverrideVersion ),
         // `sbt test` should skip tests tagged IntegrationTest
-        Test / testOptions := Seq( Tests.Argument( "-l", "com.twosixlabs.dart.test.tags.annotations.IntegrationTest" ) ),
+        Test / testOptions := Seq( Tests.Argument( "-l", "annotations.IntegrationTest" ) ),
         // `sbt integration:test` should run only tests tagged IntegrationTest
         IntegrationConfig / parallelExecution := false,
-        IntegrationConfig / testOptions := Seq( Tests.Argument( "-n", "com.twosixlabs.dart.test.tags.annotations.IntegrationTest" ) ),
+        IntegrationConfig / testOptions := Seq( Tests.Argument( "-n", "annotations.IntegrationTest" ) ),
         // `sbt wip:test` should run only tests tagged WipTest
-        WipConfig / testOptions := Seq( Tests.Argument( "-n", "com.twosixlabs.dart.test.tags.annotations.WipTest" ) ),
+        WipConfig / testOptions := Seq( Tests.Argument( "-n", "annotations.WipTest" ) ),
      )
 }
 
@@ -70,7 +70,6 @@ lazy val assemblySettings = Seq(
         case PathList( "reference.conf" ) => MergeStrategy.concat
         case x => MergeStrategy.last
     },
-    Compile / unmanagedResourceDirectories += baseDirectory.value / "src/main/webapp",
     test in assembly := {},
     mainClass in( Compile, run ) := Some( "Main" ),
 )
@@ -101,9 +100,7 @@ lazy val forkliftApi = ( project in file( "forklift-api" ) )
                               ++ dartRestCommons
                               ++ tapir
                               ++ circe
-                              ++ jsonValidator
-                              ++ cdr4s
-                              ++ cdr4sApis,
+                              ++ jsonValidator,
       publishSettings,
    )
 
@@ -114,10 +111,8 @@ lazy val forkliftServices = ( project in file( "forklift-services" ) )
   .settings(
       commonSettings,
       libraryDependencies ++= okhttp ++
-                              cdr4s ++
                               database ++
-                              operations ++
-                              dartTenants,
+                              operations,
       disablePublish,
    )
 
