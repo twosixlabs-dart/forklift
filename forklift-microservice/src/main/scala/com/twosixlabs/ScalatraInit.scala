@@ -15,7 +15,6 @@ import com.twosixlabs.dart.sql.SqlClient
 import com.twosixlabs.dart.status.readers.{DartStatusReader, DartStatusReaderDependencies}
 import com.twosixlabs.dart.status.services.{CorpexDocIdService, CorpexDocIdServiceDependencies, DocIdsService}
 import com.twosixlabs.dart.status.{OperationsStatusReader, OperationsStatusReaderDependencies, StatusReader, StatusReaderController, StatusReaderControllerDependencies}
-import com.twosixlabs.dart.tenants.controllers.DartTenantsController
 import com.typesafe.config.ConfigFactory
 import org.scalatra.LifeCycle
 import software.amazon.awssdk.auth.credentials.{AwsCredentialsProvider, EnvironmentVariableCredentialsProvider, InstanceProfileCredentialsProvider, SystemPropertyCredentialsProvider}
@@ -120,7 +119,6 @@ class ScalatraInit extends LifeCycle {
         context.setInitParameter( "org.scalatra.cors.allowedOrigins", allowedOrigins )
         context.mount( new DartRootServlet( Some( basePath ), Some( getClass.getPackage.getImplementationVersion ) ), "/*" )
         context.mount( new ForkliftController( forkliftControllerDependencies ), basePath + "/upload/*" )
-        context.mount( DartTenantsController( inMemoryTenantIndex, authDeps ), ApiStandards.DART_API_PREFIX_V1 + "/tenants/*" )
         context.mount( new StatusReaderController( statusReaderControllerDependencies ), ApiStandards.DART_API_PREFIX_V1 + "/status/*" )
     }
 

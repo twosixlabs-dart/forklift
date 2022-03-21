@@ -12,19 +12,16 @@ object Dependencies {
     val jacksonVersion = "2.10.5"
     val okhttpVersion = "4.1.0"
     val scalaMockVersion = "4.4.0"
-    val dartCommonsVersion = "3.0.285"
-    val dartAuthCommonsVersion = "3.1.159"
-    val dartRestCommonsVersion = "3.0.15"
+    val dartCommonsVersion = "3.0.30"
+    val dartAuthCommonsVersion = "3.1.11"
+    val dartRestCommonsVersion = "3.0.4"
     val jacksonOverrideVersion = "2.10.5"
-    val cdr4sApisVersion =  "2.0.76"
-    val cdr4sVersion = "3.0.253"
-    val esRepositoryVersion = "1.0.110"
+    val cdr4sVersion = "3.0.9"
     val slickVersion = "3.3.2"
     val c3p0Version = "0.9.5.1"
     val postgresVersion = "42.0.0"
     val slickPgVersion = "0.18.1"
-    val statusReaderVersion = "3.0.18"
-    val dartTenantsVersion = "3.0.55"
+    val statusReaderVersion = "3.0.11"
     val tapirVersion = "0.17.13"
     val circeVersion = "0.13.0"
 
@@ -65,8 +62,6 @@ object Dependencies {
     val cdr4s = Seq( "com.twosixlabs.cdr4s" %% "cdr4s-core" % cdr4sVersion,
                      "com.twosixlabs.cdr4s" %% "cdr4s-dart-json" % cdr4sVersion )
 
-    val cdr4sApis = Seq( "com.twosixlabs.cdr4s" %% "cdr4s-apis" % cdr4sApisVersion )
-
     val database = Seq( "com.typesafe.slick" %% "slick" % slickVersion,
                         "org.postgresql" % "postgresql" % postgresVersion,
                         "com.github.tminglei" %% "slick-pg" % slickPgVersion,
@@ -74,8 +69,6 @@ object Dependencies {
 
     val operations = Seq( "com.twosixlabs.dart.status.reader" %% "client" % statusReaderVersion,
                           "com.twosixlabs.dart.status.reader" %% "controller" % statusReaderVersion )
-
-    val dartTenants = Seq( "com.twosixlabs.dart.tenants" %% "tenants-controllers" % dartTenantsVersion )
 
     val tapir = Seq( "com.softwaremill.sttp.tapir" %% "tapir-core" % tapirVersion,
                      "com.softwaremill.sttp.tapir" %% "tapir-json-circe" % tapirVersion,

@@ -6,7 +6,7 @@ import com.twosixlabs.dart.auth.tenant.CorpusTenantIndex
 import com.twosixlabs.dart.auth.tenant.indices.InMemoryCorpusTenantIndex
 import com.twosixlabs.dart.auth.user.DartUser
 import com.twosixlabs.dart.forklift.procurement.repositories.LocalProcurementRepository
-import com.twosixlabs.dart.operations.status.client.{PipelineStatusUpdateClient, SqlPipelineStatusUpdateClient}
+import com.twosixlabs.dart.operations.status.client.{ PipelineStatusUpdateClient, SqlPipelineStatusUpdateClient }
 import com.twosixlabs.dart.rest.ApiStandards
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.BeforeAndAfterEach
@@ -14,6 +14,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatra.test.scalatest.ScalatraSuite
 
 import javax.servlet.http.HttpServletRequest
+import scala.util.Try
 
 class ForkliftControllerHermeticTestSuite extends AnyFlatSpec with ScalatraSuite with MockFactory with BeforeAndAfterEach {
 
@@ -21,12 +22,12 @@ class ForkliftControllerHermeticTestSuite extends AnyFlatSpec with ScalatraSuite
     private val fixturesDir = "forklift-controllers/src/test/resources/fixtures/"
     private val procurementHandler = new ProcurementHandler( new LocalProcurementRepository( tmpDir ) )
     private val mockOpsUpdateClient = mock[ SqlPipelineStatusUpdateClient ]
-    private val documents = Seq( "1e7416e6abcd8dcae23a57cddf2ee6c8.factiva",
-                                 "3cd880b2bc7baa32827fb5917bf6d063.factiva",
-                                 "3c1d32e0315f794084c1bc223b9a5e89.factiva",
-                                 "5d248b4e63f81c992570209854e921fe.factiva",
-                                 "4eec49617266c68388e808b4de234042.factiva",
-                                 "01f06ac0087087b0fefbdca064cfeb85.factiva" )
+    private val documents = Seq( "e7c8d6364b2da849722272dbabae7794.json",
+                                 "73dedb030b06e51ae7c4be99473ab810.json",
+                                 "d93641093067c4fa03f860e754f875b2.json",
+                                 "932e6ac6ffcf9fa2204f0fa36df3fe00.json",
+                                 "300a67792986744a2f04395dd0cf6f97.json",
+                                 "575138d7a7100853bf128fda3c54aeb3.json" )
 
     private val controllerDependencies = new ForkliftControllerDependencies {
         override val docHandler : ProcurementHandler = procurementHandler
@@ -43,9 +44,17 @@ class ForkliftControllerHermeticTestSuite extends AnyFlatSpec with ScalatraSuite
 
     addServlet( forkliftController, ApiStandards.DART_API_PREFIX_V1 + "/forklift/upload/*" )
 
+    def deleteAll( ) : Unit = {
+        documents.foreach( document => Try( File( tmpDir + "/" + s"${document}.raw" ).delete() ) )
+        documents.foreach( document => Try( File( tmpDir + "/" + s"${document.split( ".json" )( 0 )}.meta" ).delete() ) )
+    }
+
+    override def beforeEach( ) : Unit = {
+        deleteAll()
+    }
+
     override def afterEach( ) : Unit = {
-        documents.foreach( document => File( tmpDir + "/" + s"${document}.raw" ).delete() )
-        documents.foreach( document => File( tmpDir + "/" + s"${document.split( ".factiva" )( 0 )}.meta" ).delete() )
+        deleteAll( )
     }
 
     "POST to /forklift/zip" should "unzip the file and persist all documents" in {
@@ -67,6 +76,7 @@ class ForkliftControllerHermeticTestSuite extends AnyFlatSpec with ScalatraSuite
 
             status shouldBe 201
         }
+        Thread.sleep( 1000 )
         documents.foreach( document => File( tmpDir + "/" + s"${document}.raw" ).contentAsString
                                          .equals( File( fixturesDir + s"documents/${document}" ).contentAsString ) shouldBe true )
 
@@ -91,6 +101,7 @@ class ForkliftControllerHermeticTestSuite extends AnyFlatSpec with ScalatraSuite
 
             status shouldBe 201
         }
+        Thread.sleep( 1000 )
         documents.foreach( document => File( tmpDir + "/" + s"${document}.raw" ).contentAsString
                                          .equals( File( fixturesDir + s"documents/${document}" ).contentAsString ) shouldBe true )
 

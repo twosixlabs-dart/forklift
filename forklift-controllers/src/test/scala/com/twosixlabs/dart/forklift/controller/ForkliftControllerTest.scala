@@ -1,24 +1,25 @@
 package com.twosixlabs.dart.forklift.controller
 
+import annotations.WipTest
 import better.files.File
-import com.twosixlabs.dart.auth.groups.{ProgramManager, TenantGroup}
+import com.twosixlabs.dart.auth.groups.{ ProgramManager, TenantGroup }
 import com.twosixlabs.dart.auth.tenant.indices.InMemoryCorpusTenantIndex
-import com.twosixlabs.dart.auth.tenant.{CorpusTenant, CorpusTenantIndex, GlobalCorpus, Member, ReadOnly}
+import com.twosixlabs.dart.auth.tenant.{ CorpusTenant, CorpusTenantIndex, GlobalCorpus, Member, ReadOnly }
 import com.twosixlabs.dart.auth.user.DartUser
 import com.twosixlabs.dart.forklift.api.models.DocumentMetadata
-import com.twosixlabs.dart.forklift.exceptions.{UnableToSaveDocumentException, UnableToSaveMetadataException}
+import com.twosixlabs.dart.forklift.exceptions.{ UnableToSaveDocumentException, UnableToSaveMetadataException }
 import com.twosixlabs.dart.operations.status.PipelineStatus
 import com.twosixlabs.dart.operations.status.PipelineStatus.Status
-import com.twosixlabs.dart.operations.status.client.{PipelineStatusUpdateClient, SqlPipelineStatusUpdateClient}
+import com.twosixlabs.dart.operations.status.client.{ PipelineStatusUpdateClient, SqlPipelineStatusUpdateClient }
 import com.twosixlabs.dart.utils.IdGenerator
-import org.scalamock.matchers.ArgCapture.{CaptureAll, CaptureOne}
+import org.scalamock.matchers.ArgCapture.{ CaptureAll, CaptureOne }
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatra.test.scalatest.ScalatraSuite
-import org.slf4j.{Logger, LoggerFactory}
+import org.slf4j.{ Logger, LoggerFactory }
 
 import javax.servlet.http.HttpServletRequest
-import scala.util.{Failure, Success}
+import scala.util.{ Failure, Success }
 
 class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with MockFactory {
 
@@ -64,12 +65,12 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
     addServlet( readWriteUserForkliftController, "/readwrite/forklift/upload/*")
 
     "POST to /forklift/zip" should "unzip the file persist all the documents" in {
-        val document_ids = Seq( "1e7416e6abcd8dcae23a57cddf2ee6c8",
-                               "3cd880b2bc7baa32827fb5917bf6d063",
-                               "3c1d32e0315f794084c1bc223b9a5e89",
-                               "5d248b4e63f81c992570209854e921fe",
-                               "4eec49617266c68388e808b4de234042",
-                               "01f06ac0087087b0fefbdca064cfeb85" )
+        val document_ids = Seq( "e7c8d6364b2da849722272dbabae7794",
+                               "73dedb030b06e51ae7c4be99473ab810",
+                               "d93641093067c4fa03f860e754f875b2",
+                               "932e6ac6ffcf9fa2204f0fa36df3fe00",
+                               "300a67792986744a2f04395dd0cf6f97",
+                               "575138d7a7100853bf128fda3c54aeb3" )
         val mockedMetaData =
             """{
               |  "genre": "Think Tank",
@@ -85,14 +86,14 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
                                                Some( List( "Think Tank", "Spec Corpus" ) ),
                                                None )
         val testFile : File = File( s"${fixturesDir}/documents-with-directories.zip" )
-        val expectedResponse = """{"documents":[{"document_id":"01f06ac0087087b0fefbdca064cfeb85","filename":"01f06ac0087087b0fefbdca064cfeb85.factiva"},{"document_id":"1e7416e6abcd8dcae23a57cddf2ee6c8","filename":"1e7416e6abcd8dcae23a57cddf2ee6c8.factiva"},{"document_id":"4eec49617266c68388e808b4de234042","filename":"4eec49617266c68388e808b4de234042.factiva"},{"document_id":"5d248b4e63f81c992570209854e921fe","filename":"5d248b4e63f81c992570209854e921fe.factiva"},{"document_id":"3c1d32e0315f794084c1bc223b9a5e89","filename":"3c1d32e0315f794084c1bc223b9a5e89.factiva"},{"document_id":"3cd880b2bc7baa32827fb5917bf6d063","filename":"3cd880b2bc7baa32827fb5917bf6d063.factiva"}],"num_docs_failed":0}""".stripMargin
+        val expectedResponse = """{"documents":[{"document_id":"d93641093067c4fa03f860e754f875b2","filename":"d93641093067c4fa03f860e754f875b2.json"},{"document_id":"73dedb030b06e51ae7c4be99473ab810","filename":"73dedb030b06e51ae7c4be99473ab810.json"},{"document_id":"e7c8d6364b2da849722272dbabae7794","filename":"e7c8d6364b2da849722272dbabae7794.json"},{"document_id":"575138d7a7100853bf128fda3c54aeb3","filename":"575138d7a7100853bf128fda3c54aeb3.json"},{"document_id":"932e6ac6ffcf9fa2204f0fa36df3fe00","filename":"932e6ac6ffcf9fa2204f0fa36df3fe00.json"},{"document_id":"300a67792986744a2f04395dd0cf6f97","filename":"300a67792986744a2f04395dd0cf6f97.json"}],"num_docs_failed":0}""".stripMargin
 
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "3cd880b2bc7baa32827fb5917bf6d063", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "3c1d32e0315f794084c1bc223b9a5e89", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "5d248b4e63f81c992570209854e921fe", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "4eec49617266c68388e808b4de234042", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "1e7416e6abcd8dcae23a57cddf2ee6c8", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "01f06ac0087087b0fefbdca064cfeb85", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "e7c8d6364b2da849722272dbabae7794", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "73dedb030b06e51ae7c4be99473ab810", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "d93641093067c4fa03f860e754f875b2", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "932e6ac6ffcf9fa2204f0fa36df3fe00", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "300a67792986744a2f04395dd0cf6f97", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "575138d7a7100853bf128fda3c54aeb3", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
 
         val opsUpdateCapture = CaptureAll[ PipelineStatus ]()
        mockOpsUpdateClient.fireAndForget _ expects capture( opsUpdateCapture ) repeat 6
@@ -106,6 +107,7 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
             LOG.info( s"${body}" )
             body shouldBe expectedResponse
         }
+        Thread.sleep( 1000 )
         opsUpdateCapture.values.length shouldBe document_ids.length
         opsUpdateCapture.values.map( opsUpdateStatus => {
             assert( document_ids.contains( opsUpdateStatus.getDocumentId ) )
@@ -155,6 +157,7 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
                          params = Array( ("metadata", mockedMetaData) ),
                          files = Array( ("file", testFile.toJava) ) ) {
             response.headers should contain( "Content-Type" -> List( "application/json;charset=utf-8" ) )
+            LOG.info( "\n\n\n" + body + "\n\n\n" )
             status shouldBe 400
             body shouldBe expectedResponse
         }
@@ -667,12 +670,12 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
 //        opsUpdateCapture.value.getDocumentId shouldBe docId
 //    }
     "POST to /forklift/zip" should "unzip the file persist all the documents to multiple tenants when tenant operation is allowed" in {
-        val document_ids = Seq( "1e7416e6abcd8dcae23a57cddf2ee6c8",
-            "3cd880b2bc7baa32827fb5917bf6d063",
-            "3c1d32e0315f794084c1bc223b9a5e89",
-            "5d248b4e63f81c992570209854e921fe",
-            "4eec49617266c68388e808b4de234042",
-            "01f06ac0087087b0fefbdca064cfeb85" )
+        val document_ids = Seq( "e7c8d6364b2da849722272dbabae7794",
+            "73dedb030b06e51ae7c4be99473ab810",
+            "d93641093067c4fa03f860e754f875b2",
+            "932e6ac6ffcf9fa2204f0fa36df3fe00",
+            "300a67792986744a2f04395dd0cf6f97",
+            "575138d7a7100853bf128fda3c54aeb3" )
         val mockedMetaData =
             s"""{
               |  "genre": "Think Tank",
@@ -689,14 +692,14 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
                                                Some( List( "Think Tank", "Spec Corpus" ) ),
                                                None )
         val testFile : File = File( s"${fixturesDir}/documents-with-directories.zip" )
-        val expectedResponse = """{"documents":[{"document_id":"01f06ac0087087b0fefbdca064cfeb85","filename":"01f06ac0087087b0fefbdca064cfeb85.factiva"},{"document_id":"1e7416e6abcd8dcae23a57cddf2ee6c8","filename":"1e7416e6abcd8dcae23a57cddf2ee6c8.factiva"},{"document_id":"4eec49617266c68388e808b4de234042","filename":"4eec49617266c68388e808b4de234042.factiva"},{"document_id":"5d248b4e63f81c992570209854e921fe","filename":"5d248b4e63f81c992570209854e921fe.factiva"},{"document_id":"3c1d32e0315f794084c1bc223b9a5e89","filename":"3c1d32e0315f794084c1bc223b9a5e89.factiva"},{"document_id":"3cd880b2bc7baa32827fb5917bf6d063","filename":"3cd880b2bc7baa32827fb5917bf6d063.factiva"}],"num_docs_failed":0}""".stripMargin
+        val expectedResponse = """{"documents":[{"document_id":"d93641093067c4fa03f860e754f875b2","filename":"d93641093067c4fa03f860e754f875b2.json"},{"document_id":"73dedb030b06e51ae7c4be99473ab810","filename":"73dedb030b06e51ae7c4be99473ab810.json"},{"document_id":"e7c8d6364b2da849722272dbabae7794","filename":"e7c8d6364b2da849722272dbabae7794.json"},{"document_id":"575138d7a7100853bf128fda3c54aeb3","filename":"575138d7a7100853bf128fda3c54aeb3.json"},{"document_id":"932e6ac6ffcf9fa2204f0fa36df3fe00","filename":"932e6ac6ffcf9fa2204f0fa36df3fe00.json"},{"document_id":"300a67792986744a2f04395dd0cf6f97","filename":"300a67792986744a2f04395dd0cf6f97.json"}],"num_docs_failed":0}""".stripMargin
 
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "3cd880b2bc7baa32827fb5917bf6d063", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "3c1d32e0315f794084c1bc223b9a5e89", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "5d248b4e63f81c992570209854e921fe", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "4eec49617266c68388e808b4de234042", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "1e7416e6abcd8dcae23a57cddf2ee6c8", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
-        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "01f06ac0087087b0fefbdca064cfeb85", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "e7c8d6364b2da849722272dbabae7794", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "73dedb030b06e51ae7c4be99473ab810", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "d93641093067c4fa03f860e754f875b2", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "932e6ac6ffcf9fa2204f0fa36df3fe00", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "300a67792986744a2f04395dd0cf6f97", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
+        ( procurementHandler.doSave( _ : String, _ : String, _ : Array[ Byte ], _ : Option[ DocumentMetadata ] ) ).expects( "575138d7a7100853bf128fda3c54aeb3", *, *, Some( rawDocMetaData ) ).returns( Success( testFile.name ) ).once()
 
         val opsUpdateCapture = CaptureAll[ PipelineStatus ]()
         mockOpsUpdateClient.fireAndForget _ expects capture( opsUpdateCapture ) repeat 6
@@ -710,6 +713,7 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
             LOG.info( s"${body}" )
             body shouldBe expectedResponse
         }
+        Thread.sleep( 1000 )
         opsUpdateCapture.values.length shouldBe document_ids.length
         opsUpdateCapture.values.map( opsUpdateStatus => {
             assert( document_ids.contains( opsUpdateStatus.getDocumentId ) )
