@@ -107,6 +107,7 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
             LOG.info( s"${body}" )
             body shouldBe expectedResponse
         }
+        Thread.sleep( 1000 )
         opsUpdateCapture.values.length shouldBe document_ids.length
         opsUpdateCapture.values.map( opsUpdateStatus => {
             assert( document_ids.contains( opsUpdateStatus.getDocumentId ) )
@@ -712,6 +713,7 @@ class ForkliftControllerTest extends AnyFlatSpecLike with ScalatraSuite with Moc
             LOG.info( s"${body}" )
             body shouldBe expectedResponse
         }
+        Thread.sleep( 1000 )
         opsUpdateCapture.values.length shouldBe document_ids.length
         opsUpdateCapture.values.map( opsUpdateStatus => {
             assert( document_ids.contains( opsUpdateStatus.getDocumentId ) )

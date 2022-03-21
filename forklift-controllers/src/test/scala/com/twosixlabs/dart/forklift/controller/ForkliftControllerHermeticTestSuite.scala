@@ -76,6 +76,7 @@ class ForkliftControllerHermeticTestSuite extends AnyFlatSpec with ScalatraSuite
 
             status shouldBe 201
         }
+        Thread.sleep( 1000 )
         documents.foreach( document => File( tmpDir + "/" + s"${document}.raw" ).contentAsString
                                          .equals( File( fixturesDir + s"documents/${document}" ).contentAsString ) shouldBe true )
 
@@ -100,6 +101,7 @@ class ForkliftControllerHermeticTestSuite extends AnyFlatSpec with ScalatraSuite
 
             status shouldBe 201
         }
+        Thread.sleep( 1000 )
         documents.foreach( document => File( tmpDir + "/" + s"${document}.raw" ).contentAsString
                                          .equals( File( fixturesDir + s"documents/${document}" ).contentAsString ) shouldBe true )
 
