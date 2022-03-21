@@ -52,16 +52,8 @@ lazy val commonSettings : Seq[ Def.Setting[ _ ] ] = {
      )
 }
 
-lazy val publishSettings : Seq[ Def.Setting[ _ >: Task[ Option[ Resolver ] ] with Boolean ] ] = Seq(
-    publishTo := {
-        // TODO
-        None
-    },
-    publishMavenStyle := true,
-)
-
 lazy val disablePublish = Seq(
-    publish := {}
+    skip.in( publish ) := true,
 )
 
 lazy val assemblySettings = Seq(
@@ -74,6 +66,23 @@ lazy val assemblySettings = Seq(
     mainClass in( Compile, run ) := Some( "Main" ),
 )
 
+sonatypeProfileName := "com.twosixlabs"
+inThisBuild(List(
+    organization := "com.twosixlabs.dart.forklift",
+    homepage := Some(url("https://github.com/twosixlabs-dart/forklift")),
+    licenses := List("GNU-Affero-3.0" -> url("https://www.gnu.org/licenses/agpl-3.0.en.html")),
+    developers := List(
+        Developer(
+            "twosixlabs-dart",
+            "Two Six Technologies",
+            "",
+            url("https://github.com/twosixlabs-dart")
+        )
+    )
+))
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
 /*
    ##############################################################################################
@@ -101,7 +110,6 @@ lazy val forkliftApi = ( project in file( "forklift-api" ) )
                               ++ tapir
                               ++ circe
                               ++ jsonValidator,
-      publishSettings,
    )
 
 lazy val forkliftServices = ( project in file( "forklift-services" ) )
@@ -127,7 +135,6 @@ lazy val forkliftControllers = ( project in file( "forklift-controllers" ) )
                               jsonValidator ++
                               dartAuthCommons ++
                               dartRestCommons,
-      publishSettings,
    )
 
 lazy val forkliftMicroservice = ( project in file( "forklift-microservice" ) )
@@ -147,7 +154,6 @@ lazy val forkliftClient = ( project in file( "forklift-client" ) )
   .settings(
       commonSettings,
       libraryDependencies ++= jackson,
-      publishSettings,
    )
 
 ThisBuild / useCoursier := false
